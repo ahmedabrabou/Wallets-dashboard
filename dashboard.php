@@ -1,8 +1,8 @@
 <?php
 include_once 'config.php';
-header("refresh:15");
-date_default_timezone_set('Europe/Moscow');
-
+header("refresh:40");
+$timezoneQuery = "SET time_zone = '+03:00'";
+mysqli_query($connection, $timezoneQuery);
 $userData = [];
 $userQuery = "SELECT user_name, price, cryptoamount FROM users WHERE user_id = 1";
 $userResult = mysqli_query($connection, $userQuery);
@@ -71,7 +71,7 @@ $userBalance += ($userData['cryptoamount'] * $userData['price']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creative Dashboard</title>
+    <title>Wallets Dashboard</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Custom CSS -->
@@ -147,27 +147,7 @@ $userBalance += ($userData['cryptoamount'] * $userData['price']);
     </style>
 </head>
 <body>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Current Date and Time</title>
-</head>
-<body>
-    <h1>Current Date and Time</h1>
-    <p>
-        <?php
-        // Set the default timezone
-        date_default_timezone_set('Your/Timezone');
 
-        // Get the current date and time
-        $currentDateTime = date('Y-m-d H:i:s');
-
-        // Display the current date and time
-        echo "Current Date and Time: " . $currentDateTime;
-        ?>
-    </p>
-</body>
-</html>
 
     <div class="container">
         <!-- Navbar -->
@@ -230,76 +210,69 @@ $userBalance += ($userData['cryptoamount'] * $userData['price']);
     </div>
 </div>
 
-        <!-- Wallets Table -->
-        <div class="card">
-            <div class="card-header">Wallets</div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
-                        <thead>
-                            <tr>
-                                <th>Wallet ID</th>
-                                <th>Wallet Number</th>
-                                <th>Balance</th>
-                                <th>Currency</th>
-                                <th>Receive today</th>
-                                <th>Monthly Limit</th>
-                                <th>Send</th>
-                                <th>Receive</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($walletData as $wallet): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($wallet['wallet_id']); ?></td>
-                                <td><?php echo htmlspecialchars($wallet['wallet_number']); ?></td>
-                                <td><?php echo htmlspecialchars($wallet['balance']); ?></td>
-                                <td><?php echo htmlspecialchars($wallet['currency']); ?></td>
-                                <td><?php echo htmlspecialchars($wallet['daily_limit']); ?></td>
-                                <td><?php echo htmlspecialchars($wallet['monthly_limit']); ?></td>
-                                <td>
-                                    <form method="post" action="handle_transaction.php">
-                                        <input type="hidden" name="wallet_id" value="<?php echo htmlspecialchars($wallet['wallet_id']); ?>">
-                                        <input type="hidden" name="transaction_type" value="send">
-                                        <input type="number" class="form-control amount-input" name="amount" placeholder="Enter amount" required>
-                                        <button type="submit" class="btn btn-primary mt-2" name="submit_transaction">Send</button>
-                                    </form>
-                                </td>
-                                <td>
-                                    <form method="post" action="handle_transaction.php">
-                                        <input type="hidden" name="wallet_id" value="<?php echo htmlspecialchars($wallet['wallet_id']); ?>">
-                                        <input type="hidden" name="transaction_type" value="receive">
-                                        <input type="number" class="form-control amount-input" name="amount" placeholder="Enter amount" required>
-                                        <button type="submit" class="btn btn-success mt-2" name="submit_transaction">Receive</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+<?php
+// Sort $walletData array based on balance in descending order
+usort($walletData, function($a, $b) {
+    return $b['balance'] - $a['balance'];
+});
+?>
+
+<!-- Wallets Table -->
+<div class="card">
+    <div class="card-header">Wallets</div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Wallet ID</th>
+                        <th>Wallet Number</th>
+                        <th>Balance</th>
+                        <th>Currency</th>
+                        <th>Receive today</th>
+                        <th>Monthly Limit</th>
+                        <th>Send</th>
+                        <th>Receive</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($walletData as $wallet): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($wallet['wallet_id']); ?></td>
+                        <td><?php echo htmlspecialchars($wallet['wallet_number']); ?></td>
+                        <td><?php echo htmlspecialchars($wallet['balance']); ?></td>
+                        <td><?php echo htmlspecialchars($wallet['currency']); ?></td>
+                        <td><?php echo htmlspecialchars($wallet['daily_limit']); ?></td>
+                        <td><?php echo htmlspecialchars($wallet['monthly_limit']); ?></td>
+                        <td>
+                            <form method="post" action="handle_transaction.php">
+                                <input type="hidden" name="wallet_id" value="<?php echo htmlspecialchars($wallet['wallet_id']); ?>">
+                                <input type="hidden" name="transaction_type" value="send">
+                                <input type="number" class="form-control amount-input" name="amount" placeholder="Enter amount" required>
+                                <button type="submit" class="btn btn-primary mt-2" name="submit_transaction">Send</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="post" action="handle_transaction.php">
+                                <input type="hidden" name="wallet_id" value="<?php echo htmlspecialchars($wallet['wallet_id']); ?>">
+                                <input type="hidden" name="transaction_type" value="receive">
+                                <input type="number" class="form-control amount-input" name="amount" placeholder="Enter amount" required>
+                                <button type="submit" class="btn btn-success mt-2" name="submit_transaction">Receive</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
         </div>
+    </div>
+</div>
+
     </div>
 
     <!-- Bootstrap JS -->
-    
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-    // Function to reload the page every 10 seconds
-    function reloadPage() {
-        setTimeout(function() {
-            location.reload();
-        }, 10000); // 10 seconds
-    }
-
-    // Call the reloadPage function when the document is ready
-    $(document).ready(function() {
-        reloadPage();
-    });
-</script>
-
 </body>
 </html>

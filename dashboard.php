@@ -1,6 +1,7 @@
 <?php
 include_once 'config.php';
-header("refresh:5");
+header("refresh:15");
+date_default_timezone_set('Europe/Moscow');
 
 $userData = [];
 $userQuery = "SELECT user_name, price, cryptoamount FROM users WHERE user_id = 1";
@@ -146,6 +147,28 @@ $userBalance += ($userData['cryptoamount'] * $userData['price']);
     </style>
 </head>
 <body>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Current Date and Time</title>
+</head>
+<body>
+    <h1>Current Date and Time</h1>
+    <p>
+        <?php
+        // Set the default timezone
+        date_default_timezone_set('Your/Timezone');
+
+        // Get the current date and time
+        $currentDateTime = date('Y-m-d H:i:s');
+
+        // Display the current date and time
+        echo "Current Date and Time: " . $currentDateTime;
+        ?>
+    </p>
+</body>
+</html>
+
     <div class="container">
         <!-- Navbar -->
         <nav class="navbar">
